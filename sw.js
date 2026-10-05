@@ -1,5 +1,5 @@
 // Abre do cache (funciona sem internet) e atualiza em segundo plano quando há sinal.
-const CACHE = 'ronda-v1';
+const CACHE = 'ronda-v2';
 const APP = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

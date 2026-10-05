@@ -321,6 +321,13 @@ $('tabRonda').onclick=()=>aba(false);
 $('tabConf').onclick=()=>aba(true);
 
 abrir(dia);
+// O Android deixa o app aberto em segundo plano: ao voltar depois de 1 h parado, pula para a data e o turno de agora.
+// ponytail: 1 h fixa; se atrapalhar uma ronda com pausa longa, aumentar.
+let saiu=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){saiu=Date.now();return}
+  if(saiu&&Date.now()-saiu>36e5&&!atual){turno=turnoAgora();abrir(iso(new Date()))}
+});
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
