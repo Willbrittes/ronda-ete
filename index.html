@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b5fa5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Ronda ETE Nova Esperança</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Ferramenta de campo: grade de equipamentos, toque abre o formulário no topo (o teclado fica embaixo); "Passar p/ papel" é uma lista de leitura. */
+:root{
+  --bg:#e9eff2; --card:#ffffff; --ink:#0f2330; --muted:#566b78; --line:#cfdae0;
+  --accent:#0b5fa5; --accent-ink:#ffffff; --on:#c62828; --off:#1d8048; --warn:#d99a00; --hl:#e3eef8; --veil:rgba(8,20,28,.55);
+  --f-body:"Barlow",system-ui,sans-serif; --f-label:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c161c; --card:#14222b; --ink:#e5edf1; --muted:#8ea2ae; --line:#263843;
+  --accent:#5aa9e6; --accent-ink:#06121a; --on:#ef5350; --off:#3fbf74; --warn:#f0b429; --hl:#16303f; --veil:rgba(0,0,0,.65); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c161c; --card:#14222b; --ink:#e5edf1; --muted:#8ea2ae; --line:#263843;
+  --accent:#5aa9e6; --accent-ink:#06121a; --on:#ef5350; --off:#3fbf74; --warn:#f0b429; --hl:#16303f; --veil:rgba(0,0,0,.65); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--f-body);margin:0}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 8px;border-bottom:1px solid var(--line)}
+.top{display:flex;justify-content:space-between;align-items:end;gap:12px}
+.top small,.eyebrow{font:600 12px var(--f-label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font:700 26px/1.1 var(--f-label)}
+input,textarea,button{font:inherit;color:inherit}
+#dia{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-variant-numeric:tabular-nums}
+.turnos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.turnos button,.tabs button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 4px;font:600 15px var(--f-label);cursor:pointer}
+.turnos button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs{display:flex;gap:6px;margin-top:6px}
+.tabs button{flex:1;background:transparent;border-color:transparent;color:var(--muted)}
+.tabs button[aria-pressed="true"]{color:var(--ink);border-color:var(--line);background:var(--card)}
+.prog{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font:600 14px var(--f-label);color:var(--muted)}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+h2{font:700 13px var(--f-label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#hora{font:600 16px var(--f-body);padding:4px 8px;background:var(--card);border:1px solid var(--line);border-radius:8px;letter-spacing:0}
+
+/* Grade de equipamentos */
+.grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{display:grid;grid-template-columns:1fr auto;gap:2px 8px;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;min-height:72px;align-content:start}
+.tile.novo{border-style:dashed;background:transparent}
+.tn{font:700 18px/1.15 var(--f-label)}
+.chip{font:700 13px var(--f-label);border-radius:6px;padding:1px 7px;align-self:start;color:#fff}
+.s-L .chip{background:var(--on)} .s-D .chip{background:var(--off)} .s-M .chip{background:var(--warn);color:#1a1300}
+.tv{grid-column:1/-1;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.s-L .tv{color:var(--ink);font-weight:600}
+.tl{grid-column:1/-1;font:600 12px var(--f-label);color:var(--accent);letter-spacing:.04em}
+.extras{display:grid;gap:12px}
+.campo{display:grid;gap:4px;font:600 12px var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.campo input,.campo textarea{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px;font:500 16px var(--f-body);text-transform:none;letter-spacing:0}
+.dica{font-size:13px;color:var(--muted);margin:10px 0 0}
+
+/* Formulário de um equipamento, preso no topo */
+.folha{position:fixed;inset:0;z-index:20;background:var(--veil)}
+.painel{background:var(--card);border-radius:0 0 18px 18px;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 14px;max-width:640px;margin:0 auto;display:grid;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.fh{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.fh h3{margin:0;font:700 24px/1.1 var(--f-label)}
+.x{border:1px solid var(--line);background:transparent;border-radius:10px;width:44px;height:44px;font-size:20px;cursor:pointer}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.st button{border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:8px 0 6px;cursor:pointer;display:grid;line-height:1.1}
+.st b{font:700 22px var(--f-label)}
+.st small{font-size:11px;color:var(--muted)}
+.st button[aria-pressed="true"][data-s="L"]{background:var(--on);border-color:var(--on);color:#fff}
+.st button[aria-pressed="true"][data-s="D"]{background:var(--off);border-color:var(--off);color:#fff}
+.st button[aria-pressed="true"][data-s="M"]{background:var(--warn);border-color:var(--warn);color:#1a1300}
+.st button[aria-pressed="true"] small{color:inherit;opacity:.85}
+.fv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fv label{display:grid;gap:4px;font:600 12px var(--f-label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fv input{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:10px;font:600 24px var(--f-body);font-variant-numeric:tabular-nums}
+.fv input:disabled{opacity:.45}
+.fv input::placeholder{color:var(--muted);opacity:.55}
+.limp{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.limp label{display:flex;align-items:center;gap:10px;font:600 17px var(--f-label);cursor:pointer}
+.limp input[type=checkbox]{width:26px;height:26px;accent-color:var(--accent);margin:0}
+.limp input[type=time]{font:600 18px var(--f-body);padding:6px 8px;background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+.fa{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.fa button{border:1.5px solid var(--line);background:transparent;border-radius:12px;padding:12px;font:700 17px var(--f-label);cursor:pointer}
+.fa button:disabled{opacity:.4}
+.fa .prim{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2.5px solid var(--accent);outline-offset:1px}
+
+/* Passar para o papel */
+.folhaTxt{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:10px}
+.folhaTxt h3{margin:0 0 2px;font:700 20px var(--f-label)}
+.folhaTxt .sub{color:var(--muted);font-size:14px;margin:0 0 8px}
+.linhas{list-style:none;margin:0;padding:0}
+.linhas li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:17px}
+.linhas li .v{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.linhas li .v b{display:inline-block;min-width:1.4em;text-align:center;border-radius:5px;color:#fff;font:700 14px/1.5 var(--f-label);margin-right:6px}
+.linhas .L b{background:var(--on)} .linhas .D b{background:var(--off)} .linhas .M b{background:var(--warn);color:#1a1300}
+.linhas li.vazio .v{color:var(--muted);font-style:italic}
+.linhas li.ok{opacity:.4;text-decoration:line-through}
+.extra{border-top:1px solid var(--line);padding-top:8px;margin-top:2px;font-size:16px}
+.extra p{margin:4px 0}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-block:0">
+    <div class="top">
+      <div><small>ETE Nova Esperança</small><h1>Ronda de campo</h1></div>
+      <input type="date" id="dia" aria-label="Data da ronda">
+    </div>
+    <div class="turnos" id="turnos"></div>
+    <div class="tabs">
+      <button id="tabRonda" aria-pressed="true">Anotar</button>
+      <button id="tabConf" aria-pressed="false">Passar p/ papel</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="vRonda">
+    <div class="prog"><span id="progTxt"></span><div class="bar"><i id="progBar"></i></div></div>
+
+    <h2>Bombas</h2>
+    <div class="grade" id="gB"></div>
+
+    <h2>Sopradores <label>Horário <input type="time" id="hora"></label></h2>
+    <div class="grade" id="gS"></div>
+
+    <h2>Fechamento do turno</h2>
+    <div class="extras">
+      <label class="campo">Responsável no turno<input id="resp" autocomplete="name"></label>
+      <label class="campo">Ocorrências (equipamento, motivo, providência)<textarea id="ocorr" rows="3"></textarea></label>
+    </div>
+    <p class="dica">Toque no equipamento onde você está. Vermelho = energizado (L), verde = desenergizado (D), amarelo = manutenção (M).</p>
+  </main>
+
+  <main id="vConf" hidden>
+    <p class="dica" style="margin-top:14px">Toque numa linha depois de passar para a folha. Ela fica riscada.</p>
+    <div id="txt"></div>
+  </main>
+</div>
+
+<div class="folha" id="folha" hidden>
+  <div class="painel" role="dialog" aria-modal="true" aria-labelledby="fNome">
+    <div class="fh">
+      <div><div class="eyebrow" id="fPos"></div><h3 id="fNome"></h3></div>
+      <button class="x" id="fFechar" aria-label="Fechar">✕</button>
+    </div>
+    <div class="st" id="fSt"></div>
+    <div class="fv">
+      <label>Hz<input id="fHz" inputmode="decimal" enterkeyhint="next"></label>
+      <label>A<input id="fA" inputmode="decimal" enterkeyhint="next"></label>
+    </div>
+    <div class="limp" id="fLimp">
+      <label><input type="checkbox" id="fLimpa">Bomba limpa</label>
+      <input type="time" id="fLimpaH" aria-label="Horário da limpeza" hidden>
+    </div>
+    <div class="fa">
+      <button id="fAnt">‹ Anterior</button>
+      <button id="fProx" class="prim">Próxima ›</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BOMBAS=[['b1','Bomba 01 KSB','KSB 01'],['b2','Bomba 02 KSB','KSB 02'],['b3','Bomba 03 KSB','KSB 03'],['b4','Bomba 04 KSB','KSB 04'],
+  ['b5','Bomba 05 Reciclo','Reciclo 05'],['e1','Bomba 01 EE DEC4','EE DEC4 01'],['e2','Bomba 02 EE DEC4','EE DEC4 02'],
+  ['t1','Bomba 1 ETL','ETL 1'],['t2','Bomba 2 ETL','ETL 2'],['t3','Bomba 3 ETL','ETL 3']];
+const SOPR=[1,2,3,4,5].map(n=>['s'+n,'Soprador 0'+n,'Soprador 0'+n]);
+const TODOS=[...BOMBAS,...SOPR];
+const NOME={L:'Energizada',D:'Desenergizada',M:'Manutenção'};
+const K='ronda:';
+const get=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
+const put=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const $=id=>document.getElementById(id);
+const agora=()=>new Date().toTimeString().slice(0,5);
+const esc=s=>String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const ontem=s=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()-1);return iso(d)};
+// Turnos da folha de processo: T1 00h–06h, T2 06h–12h, T3 12h–18h, T4 18h–24h
+const turnoAgora=()=>Math.floor(new Date().getHours()/6)+1;
+
+let dia=iso(new Date()), turno=turnoAgora(), dados={}, atual=null;
+function abrir(d){
+  dia=d; $('dia').value=d;
+  dados=get(K+d)||{};
+  render();
+}
+const T=()=>dados[turno]??={};
+const salvar=()=>put(K+dia,dados);
+// Última leitura antes deste turno (mesmo dia, depois dia anterior)
+function anterior(id){
+  for(let t=turno-1;t>=1;t--) if(dados[t]?.[id]?.s) return dados[t][id];
+  const o=get(K+ontem(dia))||{};
+  for(let t=4;t>=1;t--) if(o[t]?.[id]?.s) return o[t][id];
+  return {};
+}
+
+function tile([id,,curto]){
+  const r=T()[id]||{};
+  const v=!r.s?'Toque para anotar':r.s==='L'?`${esc(r.hz||'–')} Hz · ${esc(r.a||'–')} A`:NOME[r.s];
+  return `<button class="tile ${r.s?'s-'+r.s:'novo'}" data-open="${id}">
+    <span class="tn">${curto}</span><span class="chip">${r.s||''}</span>
+    <span class="tv">${v}</span>${r.limpa?`<span class="tl">Limpa às ${esc(r.limpa)}</span>`:''}</button>`;
+}
+function progresso(){
+  const t=T(), n=TODOS.filter(([id])=>t[id]?.s).length;
+  $('progTxt').textContent=`${n} de ${TODOS.length} anotados`;
+  $('progBar').style.width=(n/TODOS.length*100)+'%';
+}
+function grades(){ $('gB').innerHTML=BOMBAS.map(tile).join(''); $('gS').innerHTML=SOPR.map(tile).join(''); progresso(); texto(); }
+function render(){
+  $('turnos').innerHTML=[1,2,3,4].map(n=>`<button data-t="${n}" aria-pressed="${n===turno}">Turno ${n}</button>`).join('');
+  const t=T();
+  $('hora').value=t.hora||''; $('resp').value=t.resp??(get('ronda:nome')||''); $('ocorr').value=t.ocorr||'';
+  grades();
+}
+
+/* ---------- Formulário de um equipamento ---------- */
+function abrirEq(id){
+  if($('folha').hidden) history.pushState({folha:1},'');
+  atual=id;
+  const i=TODOS.findIndex(x=>x[0]===id), [,nome]=TODOS[i], r=T()[id]||{}, p=anterior(id), off=r.s&&r.s!=='L';
+  $('fPos').textContent=`${i+1} de ${TODOS.length}`;
+  $('fNome').textContent=nome;
+  $('fSt').innerHTML=['L','D','M'].map(s=>`<button data-s="${s}" aria-pressed="${r.s===s}"><b>${s}</b><small>${NOME[s]}</small></button>`).join('');
+  for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){el.value=off?'—':r[f]??'';el.placeholder=p[f]??'';el.disabled=!!off}
+  $('fLimp').hidden=id[0]==='s';
+  $('fLimpa').checked=!!r.limpa; $('fLimpaH').hidden=!r.limpa; $('fLimpaH').value=r.limpa||'';
+  $('fAnt').disabled=i===0;
+  $('fProx').textContent=i===TODOS.length-1?'Concluir':'Próxima ›';
+  $('folha').hidden=false;
+  if(!off) $('fA').focus();
+}
+function esconder(){ $('folha').hidden=true; atual=null; grades(); }
+// O botão voltar do Android fecha o formulário em vez de sair do app
+function fechar(){ history.state?.folha ? history.back() : esconder(); }
+addEventListener('popstate',()=>{ if(atual) esconder(); });
+function marcaSop(t){ if(atual[0]==='s'&&!t.hora){t.hora=agora();$('hora').value=t.hora} }
+function setStatus(s){
+  const t=T(), r=t[atual]??={};
+  r.s=s;
+  if(s!=='L'){delete r.hz;delete r.a}
+  else if(!r.hz) r.hz=anterior(atual).hz;
+  marcaSop(t); salvar(); abrirEq(atual);
+}
+
+$('fSt').onclick=e=>{const b=e.target.closest('[data-s]'); if(b) setStatus(b.dataset.s)};
+for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){
+  el.oninput=()=>{
+    const t=T(), r=t[atual]??={};
+    r[f]=el.value;
+    // Começou a digitar sem status: marca L (sem fechar o teclado)
+    if(!r.s){
+      r.s='L';
+      $('fSt').querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s==='L'));
+      if(f==='a'&&!r.hz&&anterior(atual).hz){r.hz=anterior(atual).hz;$('fHz').value=r.hz}
+      marcaSop(t);
+    }
+    salvar();
+  };
+}
+$('fHz').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('fA').focus()}};
+$('fA').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('fProx').click()}};
+$('fLimpa').onchange=e=>{
+  const r=T()[atual]??={};
+  if(e.target.checked) r.limpa=agora(); else delete r.limpa;
+  $('fLimpaH').value=r.limpa||''; $('fLimpaH').hidden=!r.limpa; salvar();
+};
+$('fLimpaH').oninput=e=>{(T()[atual]??={}).limpa=e.target.value; salvar()};
+$('fFechar').onclick=fechar;
+$('folha').onclick=e=>{if(e.target.id==='folha') fechar()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&atual) fechar()});
+$('fProx').onclick=()=>{const i=TODOS.findIndex(x=>x[0]===atual); i<TODOS.length-1?abrirEq(TODOS[i+1][0]):fechar()};
+$('fAnt').onclick=()=>{const i=TODOS.findIndex(x=>x[0]===atual); if(i>0) abrirEq(TODOS[i-1][0])};
+
+/* ---------- Tela principal ---------- */
+$('vRonda').addEventListener('click',e=>{const b=e.target.closest('[data-open]'); if(b) abrirEq(b.dataset.open)});
+$('turnos').onclick=e=>{const b=e.target.closest('[data-t]'); if(b){turno=+b.dataset.t; render()}};
+$('dia').onchange=e=>e.target.value&&abrir(e.target.value);
+for(const id of ['hora','resp','ocorr']) $(id).oninput=e=>{
+  T()[id]=e.target.value; if(id==='resp') put('ronda:nome',e.target.value); salvar(); texto();
+};
+
+/* ---------- Passar para o papel ---------- */
+function linha([id,nome]){
+  const r=T()[id];
+  if(!r?.s) return `<li class="vazio"><span>${nome}</span><span class="v">não anotado</span></li>`;
+  const v=r.s==='L'?`${esc(r.hz||'–')} Hz · ${esc(r.a||'–')} A`:'—';
+  return `<li class="${r.s}"><span>${nome}</span><span class="v"><b>${r.s}</b>${v}</span></li>`;
+}
+function texto(){
+  const t=T();
+  const data=new Date(dia+'T12:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  const limpas=BOMBAS.filter(([id])=>t[id]?.limpa).map(([id,nome])=>`${t[id].limpa} · ${nome}`);
+  $('txt').innerHTML=`
+  <section class="folhaTxt">
+    <h3>Diário de Bombas</h3><p class="sub">Turno ${turno} · ${data}</p>
+    <ul class="linhas">${BOMBAS.map(linha).join('')}</ul>
+    <div class="extra">
+      <p><b>Limpezas:</b> ${limpas.length?limpas.map(esc).join('; '):'nenhuma'}</p>
+      <p><b>Responsável:</b> ${esc(t.resp||'—')}</p>
+    </div>
+  </section>
+  <section class="folhaTxt">
+    <h3>Controle dos Sopradores</h3><p class="sub">Turno ${turno} · horário ${esc(t.hora||'—')}</p>
+    <ul class="linhas">${SOPR.map(linha).join('')}</ul>
+    <div class="extra"><p><b>Responsável:</b> ${esc(t.resp||'—')}</p></div>
+  </section>
+  ${t.ocorr?`<section class="folhaTxt"><h3>Ocorrências</h3><p style="margin:0;white-space:pre-wrap">${esc(t.ocorr)}</p></section>`:''}`;
+}
+$('txt').onclick=e=>{const li=e.target.closest('.linhas li'); if(li) li.classList.toggle('ok')};
+
+function aba(conf){$('vRonda').hidden=conf;$('vConf').hidden=!conf;$('tabRonda').setAttribute('aria-pressed',!conf);$('tabConf').setAttribute('aria-pressed',conf);scrollTo(0,0)}
+$('tabRonda').onclick=()=>aba(false);
+$('tabConf').onclick=()=>aba(true);
+
+abrir(dia);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
