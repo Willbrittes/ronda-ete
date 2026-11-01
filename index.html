@@ -155,7 +155,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2.5px so
     </div>
     <div class="st" id="fSt"></div>
     <div class="fv">
-      <label>Hz<input id="fHz" inputmode="decimal" enterkeyhint="next"></label>
+      <label><span id="fHzL">Hz</span><input id="fHz" inputmode="decimal" enterkeyhint="next"></label>
       <label>A<input id="fA" inputmode="decimal" enterkeyhint="next"></label>
     </div>
     <div class="limp" id="fLimp">
@@ -176,6 +176,8 @@ const BOMBAS=[['b1','Bomba 01 KSB','KSB 01'],['b2','Bomba 02 KSB','KSB 02'],['b3
 const SOPR=[1,2,3,4,5].map(n=>['s'+n,'Soprador 0'+n,'Soprador 0'+n]);
 const TODOS=[...BOMBAS,...SOPR];
 const NOME={L:'Energizada',D:'Desenergizada',M:'Manutenção'};
+// Bombas da ETL (t1..t3) medem rotação; o campo continua 'hz' nos dados, só muda o rótulo
+const un=id=>id[0]==='t'?'RPM':'Hz';
 const K='ronda:';
 const get=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
 const put=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
@@ -206,7 +208,7 @@ function anterior(id){
 
 function tile([id,,curto]){
   const r=T()[id]||{};
-  const v=!r.s?'Toque para anotar':r.s==='L'?`${esc(r.hz||'–')} Hz · ${esc(r.a||'–')} A`:NOME[r.s];
+  const v=!r.s?'Toque para anotar':r.s==='L'?`${esc(r.hz||'–')} ${un(id)} · ${esc(r.a||'–')} A`:NOME[r.s];
   return `<button class="tile ${r.s?'s-'+r.s:'novo'}" data-open="${id}">
     <span class="tn">${curto}</span><span class="chip">${r.s||''}</span>
     <span class="tv">${v}</span>${r.limpa?`<span class="tl">Limpa às ${esc(r.limpa)}</span>`:''}</button>`;
@@ -233,6 +235,7 @@ function abrirEq(id){
   const i=TODOS.findIndex(x=>x[0]===id), [,nome]=TODOS[i], r=T()[id]||{}, p=anterior(id), off=r.s&&r.s!=='L';
   $('fPos').textContent=`${i+1} de ${TODOS.length}`;
   $('fNome').textContent=nome;
+  $('fHzL').textContent=un(id);
   $('fSt').innerHTML=['L','D','M'].map(s=>`<button data-s="${s}" aria-pressed="${r.s===s}"><b>${s}</b><small>${NOME[s]}</small></button>`).join('');
   for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){el.value=off?'—':r[f]??'';el.placeholder=p[f]??'';el.disabled=!!off}
   $('fLimp').hidden=id[0]==='s';
@@ -297,7 +300,7 @@ for(const id of ['hora','resp','ocorr']) $(id).oninput=e=>{
 function linha([id,nome]){
   const r=T()[id];
   if(!r?.s) return `<li class="vazio"><span>${nome}</span><span class="v">não anotado</span></li>`;
-  const v=r.s==='L'?`${esc(r.hz||'–')} Hz · ${esc(r.a||'–')} A`:'—';
+  const v=r.s==='L'?`${esc(r.hz||'–')} ${un(id)} · ${esc(r.a||'–')} A`:'—';
   return `<li class="${r.s}"><span>${nome}</span><b>${r.s}</b><span class="v">${v}</span></li>`;
 }
 function texto(){
