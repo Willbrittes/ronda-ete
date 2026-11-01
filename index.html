@@ -40,7 +40,7 @@ input,textarea,button{font:inherit;color:inherit}
 .tabs button[aria-pressed="true"]{color:var(--ink);border-color:var(--line);background:var(--card)}
 .prog{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font:600 14px var(--f-label);color:var(--muted)}
 .bar{flex:1;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;border-radius:99px;background:hsl(var(--h,4) 72% 46%);transition:width .35s ease,background-color .35s ease,box-shadow .35s ease}
+.bar i{display:block;width:100%;height:100%;background:linear-gradient(90deg,hsl(4 72% 46%),hsl(38 90% 50%) 50%,hsl(145 72% 40%));clip-path:inset(0 100% 0 0 round 99px);transition:clip-path .35s ease,box-shadow .35s ease}
 .prog.ok{color:hsl(145 72% 36%)}
 .prog.ok .bar i{box-shadow:0 0 10px hsl(145 72% 46%)}
 h2{font:700 13px var(--f-label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -215,9 +215,7 @@ function progresso(){
   const fim=n===TODOS.length;
   $('progTxt').textContent=fim?'✓ Tudo anotado':`${n} de ${TODOS.length} anotados`;
   $('progTxt').parentNode.classList.toggle('ok',fim);
-  // Cor acompanha o avanço: vermelho (4) → amarelo → verde (145)
-  $('progBar').style.setProperty('--h',4+141*n/TODOS.length);
-  $('progBar').style.width=(n/TODOS.length*100)+'%';
+  $('progBar').style.clipPath=`inset(0 ${100-n/TODOS.length*100}% 0 0 round 99px)`;
 }
 function grades(){ $('gB').innerHTML=BOMBAS.map(tile).join(''); $('gS').innerHTML=SOPR.map(tile).join(''); progresso(); texto(); }
 function render(){
