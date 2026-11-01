@@ -97,10 +97,13 @@ input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2.5px so
 .folhaTxt .sub{color:var(--muted);font-size:14px;margin:0 0 8px}
 .linhas{list-style:none;margin:0;padding:0}
 /* 3 colunas fixas: nome | letra | valor. A letra fica sempre no mesmo lugar */
-.linhas li{display:grid;grid-template-columns:minmax(0,1fr) 1.6em 7.2em;align-items:center;column-gap:10px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:17px}
+.linhas li{display:grid;grid-template-columns:minmax(0,1fr) 1.6em 4em 3.3em;align-items:center;column-gap:8px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:17px}
 .linhas li .v{font-variant-numeric:tabular-nums;text-align:left;white-space:nowrap}
 .linhas li b{display:block;text-align:center;border-radius:5px;color:#fff;font:700 14px/1.5 var(--f-label)}
 .linhas .L b{background:var(--on)} .linhas .D b{background:var(--off)} .linhas .M b{background:var(--warn);color:#1a1300}
+.linhas li .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.linhas li .n.sem{grid-column:3/-1;text-align:left}
+.linhas li .u{font-style:normal;font-size:12px;color:var(--muted);margin-left:3px}
 .linhas li.vazio .v{grid-column:2/-1;color:var(--muted);font-style:italic}
 .linhas li.ok{opacity:.4;text-decoration:line-through}
 .extra{border-top:1px solid var(--line);padding-top:8px;margin-top:2px;font-size:16px}
@@ -304,8 +307,10 @@ for(const id of ['hora','resp','ocorr']) $(id).oninput=e=>{
 function linha([id,nome]){
   const r=T()[id];
   if(!r?.s) return `<li class="vazio"><span>${nome}</span><span class="v">não anotado</span></li>`;
-  const v=r.s==='L'?`${esc(r.hz||'–')} ${un(id)} · ${esc(r.a||'–')} A`:'—';
-  return `<li class="${r.s}"><span>${nome}</span><b>${r.s}</b><span class="v">${v}</span></li>`;
+  const val=r.s==='L'
+    ?`<span class="n">${esc(r.hz||'–')}<i class="u">${un(id)}</i></span><span class="n">${esc(r.a||'–')}<i class="u">A</i></span>`
+    :'<span class="n sem">—</span>';
+  return `<li class="${r.s}"><span>${nome}</span><b>${r.s}</b>${val}</li>`;
 }
 function texto(){
   const t=T();
