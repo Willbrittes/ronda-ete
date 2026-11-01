@@ -95,11 +95,12 @@ input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2.5px so
 .folhaTxt h3{margin:0 0 2px;font:700 20px var(--f-label)}
 .folhaTxt .sub{color:var(--muted);font-size:14px;margin:0 0 8px}
 .linhas{list-style:none;margin:0;padding:0}
-.linhas li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:17px}
-.linhas li .v{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-.linhas li .v b{display:inline-block;min-width:1.4em;text-align:center;border-radius:5px;color:#fff;font:700 14px/1.5 var(--f-label);margin-right:6px}
+/* 3 colunas fixas: nome | letra | valor. A letra fica sempre no mesmo lugar */
+.linhas li{display:grid;grid-template-columns:minmax(0,1fr) 1.6em 7.2em;align-items:center;column-gap:10px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:17px}
+.linhas li .v{font-variant-numeric:tabular-nums;text-align:left;white-space:nowrap}
+.linhas li b{display:block;text-align:center;border-radius:5px;color:#fff;font:700 14px/1.5 var(--f-label)}
 .linhas .L b{background:var(--on)} .linhas .D b{background:var(--off)} .linhas .M b{background:var(--warn);color:#1a1300}
-.linhas li.vazio .v{color:var(--muted);font-style:italic}
+.linhas li.vazio .v{grid-column:2/-1;color:var(--muted);font-style:italic}
 .linhas li.ok{opacity:.4;text-decoration:line-through}
 .extra{border-top:1px solid var(--line);padding-top:8px;margin-top:2px;font-size:16px}
 .extra p{margin:4px 0}
@@ -297,7 +298,7 @@ function linha([id,nome]){
   const r=T()[id];
   if(!r?.s) return `<li class="vazio"><span>${nome}</span><span class="v">não anotado</span></li>`;
   const v=r.s==='L'?`${esc(r.hz||'–')} Hz · ${esc(r.a||'–')} A`:'—';
-  return `<li class="${r.s}"><span>${nome}</span><span class="v"><b>${r.s}</b>${v}</span></li>`;
+  return `<li class="${r.s}"><span>${nome}</span><b>${r.s}</b><span class="v">${v}</span></li>`;
 }
 function texto(){
   const t=T();
