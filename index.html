@@ -235,7 +235,7 @@ function abrirEq(id){
   $('fAnt').disabled=i===0;
   $('fProx').textContent=i===TODOS.length-1?'Concluir':'Próxima ›';
   $('folha').hidden=false;
-  if(!off) $('fA').focus();
+  if(!off) $('fHz').focus();
 }
 function esconder(){ $('folha').hidden=true; atual=null; grades(); }
 // O botão voltar do Android fecha o formulário em vez de sair do app
@@ -265,6 +265,7 @@ for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){
     salvar();
   };
 }
+for(const el of [$('fHz'),$('fA')]) el.onfocus=()=>el.select();
 $('fHz').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('fA').focus()}};
 $('fA').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('fProx').click()}};
 $('fLimpa').onchange=e=>{
