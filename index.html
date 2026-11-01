@@ -84,6 +84,7 @@ h2{font:700 13px var(--f-label);letter-spacing:.1em;text-transform:uppercase;col
 .limp label{display:flex;align-items:center;gap:10px;font:600 17px var(--f-label);cursor:pointer}
 .limp input[type=checkbox]{width:26px;height:26px;accent-color:var(--accent);margin:0}
 .limp input[type=time]{font:600 18px var(--f-body);padding:6px 8px;background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+#fProg{margin:0}
 .fa{display:grid;grid-template-columns:1fr 2fr;gap:8px}
 .fa button{border:1.5px solid var(--line);background:transparent;border-radius:12px;padding:12px;font:700 17px var(--f-label);cursor:pointer}
 .fa button:disabled{opacity:.4}
@@ -153,6 +154,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2.5px so
       <div><div class="eyebrow" id="fPos"></div><h3 id="fNome"></h3></div>
       <button class="x" id="fFechar" aria-label="Fechar">✕</button>
     </div>
+    <div class="prog" id="fProg"><span id="fProgTxt"></span><div class="bar"><i id="fProgBar"></i></div></div>
     <div class="st" id="fSt"></div>
     <div class="fv">
       <label><span id="fHzL">Hz</span><input id="fHz" inputmode="decimal" enterkeyhint="next"></label>
@@ -214,11 +216,12 @@ function tile([id,,curto]){
     <span class="tv">${v}</span>${r.limpa?`<span class="tl">Limpa às ${esc(r.limpa)}</span>`:''}</button>`;
 }
 function progresso(){
-  const t=T(), n=TODOS.filter(([id])=>t[id]?.s).length;
-  const fim=n===TODOS.length;
-  $('progTxt').textContent=fim?'✓ Tudo anotado':`${n} de ${TODOS.length} anotados`;
-  $('progTxt').parentNode.classList.toggle('ok',fim);
-  $('progBar').style.clipPath=`inset(0 ${100-n/TODOS.length*100}% 0 0 round 99px)`;
+  const t=T(), n=TODOS.filter(([id])=>t[id]?.s).length, fim=n===TODOS.length;
+  for(const p of ['prog','fProg']){ // barra da tela principal e a do popup
+    $(p+'Txt').textContent=fim?'✓ Tudo anotado':`${n} de ${TODOS.length} anotados`;
+    $(p+'Txt').parentNode.classList.toggle('ok',fim);
+    $(p+'Bar').style.clipPath=`inset(0 ${100-n/TODOS.length*100}% 0 0 round 99px)`;
+  }
 }
 function grades(){ $('gB').innerHTML=BOMBAS.map(tile).join(''); $('gS').innerHTML=SOPR.map(tile).join(''); progresso(); texto(); }
 function render(){
@@ -236,6 +239,7 @@ function abrirEq(id){
   $('fPos').textContent=`${i+1} de ${TODOS.length}`;
   $('fNome').textContent=nome;
   $('fHzL').textContent=un(id);
+  progresso();
   $('fSt').innerHTML=['L','D','M'].map(s=>`<button data-s="${s}" aria-pressed="${r.s===s}"><b>${s}</b><small>${NOME[s]}</small></button>`).join('');
   for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){el.value=off?'—':r[f]??'';el.placeholder=p[f]??'';el.disabled=!!off}
   $('fLimp').hidden=id[0]==='s';
@@ -268,7 +272,7 @@ for(const [el,f] of [[$('fHz'),'hz'],[$('fA'),'a']]){
       r.s='L';
       $('fSt').querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s==='L'));
       if(f==='a'&&!r.hz&&anterior(atual).hz){r.hz=anterior(atual).hz;$('fHz').value=r.hz}
-      marcaSop(t);
+      marcaSop(t); progresso();
     }
     salvar();
   };
